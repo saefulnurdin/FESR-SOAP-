@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentTemplateController;
+use App\Http\Controllers\DocumentTemplateFieldController;
+use App\Http\Controllers\DocumentTemplateSectionController;
+use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EncounterController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
@@ -9,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'welcome')->name('home');
 
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -52,6 +57,38 @@ Route::middleware('auth')->group(function () {
         Route::get('/{user}', [UserController::class, 'edit'])->name('edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+    });
+
+    /*
+     * Struktur dokumen menentukan ke mana hasil ekstraksi NLU dipetakan, jadi
+     * hanya administrator yang boleh mengubahnya.(scopeBindings) menjaga agar
+     * bagian dan isian yang dimaksud benar-benar milik template pada route.
+     */
+    Route::middleware('can:manage-document-templates')->prefix('admin')->name('admin.')->scopeBindings()->group(function () {
+        Route::resource('document-types', DocumentTypeController::class)
+            ->except(['show'])
+            ->parameters(['document-types' => 'documentType']);
+
+        Route::prefix('document-types/{documentType}/templates')->name('document-types.templates.')->group(function () {
+            Route::get('/', [DocumentTemplateController::class, 'index'])->name('index');
+            Route::get('/create', [DocumentTemplateController::class, 'create'])->name('create');
+            Route::post('/', [DocumentTemplateController::class, 'store'])->name('store');
+        });
+
+        Route::prefix('templates/{template}')->name('templates.')->group(function () {
+            Route::get('/edit', [DocumentTemplateController::class, 'edit'])->name('edit');
+            Route::put('/', [DocumentTemplateController::class, 'update'])->name('update');
+            Route::delete('/', [DocumentTemplateController::class, 'destroy'])->name('destroy');
+
+            Route::post('/sections', [DocumentTemplateSectionController::class, 'store'])->name('sections.store');
+            Route::delete('/sections/{section}', [DocumentTemplateSectionController::class, 'destroy'])->name('sections.destroy');
+
+            Route::get('/fields/create', [DocumentTemplateFieldController::class, 'create'])->name('fields.create');
+            Route::post('/fields', [DocumentTemplateFieldController::class, 'store'])->name('fields.store');
+            Route::get('/fields/{field}/edit', [DocumentTemplateFieldController::class, 'edit'])->name('fields.edit');
+            Route::put('/fields/{field}', [DocumentTemplateFieldController::class, 'update'])->name('fields.update');
+            Route::delete('/fields/{field}', [DocumentTemplateFieldController::class, 'destroy'])->name('fields.destroy');
+        });
     });
 });
 

@@ -3,12 +3,6 @@
 @section('title', 'Dasbor — ' . config('app.name'))
 
 @section('content')
-    @php
-        $patientCount = \App\Models\Patient::count();
-        $todayEncounterCount = \App\Models\Encounter::occurredOn(today()->toDateString())->count();
-        $onGoingCount = \App\Models\Encounter::onGoing()->count();
-    @endphp
-
     <div class="mx-auto max-w-3xl">
         <h1 class="text-2xl font-bold tracking-tight">Halo, {{ auth()->user()->name }}</h1>
         <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
@@ -31,7 +25,7 @@
 
             <div class="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
                 <p class="text-sm text-slate-600 dark:text-slate-400">Kunjungan berjalan</p>
-                <p class="mt-1 text-2xl font-semibold">{{ $onGoingCount }}</p>
+                <p class="mt-1 text-2xl font-semibold">{{ $onGoingEncounterCount }}</p>
             </div>
         </div>
 
@@ -50,6 +44,17 @@
                     Merekam kondisi pasien dengan suara sebagai draf SOAP. Fitur ini dibangun pada fase berikutnya.
                 </p>
             </div>
+
+            @can('manage-document-templates')
+                <a href="{{ route('admin.document-types.index') }}"
+                    class="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-teal-400 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-teal-600">
+                    <h2 class="font-semibold">Template dokumen</h2>
+                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                        Susun bagian dan isian yang akan diisi hasil pemetaan, saat ini
+                        {{ $documentTypeCount }} jenis dokumen.
+                    </p>
+                </a>
+            @endcan
 
             @can('manage-users')
                 <a href="{{ route('admin.users.index') }}"

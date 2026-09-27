@@ -2,6 +2,10 @@
     <x-alert type="success">{{ session('success') }}</x-alert>
 @endif
 
+@if (session('error'))
+    <x-alert type="error">{{ session('error') }}</x-alert>
+@endif
+
 @if ($errors->any())
     <x-alert type="error">
         <p class="font-medium">Periksa kembali isian Anda:</p>

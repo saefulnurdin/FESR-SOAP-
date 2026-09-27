@@ -27,10 +27,11 @@
         </div>
 
         <div class="mt-10 rounded-xl border border-amber-200 bg-amber-50 p-5 text-left text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
-            <p class="font-semibold">Status: Fase 2 — Manajemen pasien &amp; encounter</p>
+            <p class="font-semibold">Status: Fase 3 — Document type &amp; document template</p>
             <p class="mt-1">
                 Sudah tersedia: masuk, lupa kata sandi, profil sendiri, pengelolaan akun oleh administrator,
-                data pasien, serta riwayat kunjungan. Dokumentasi suara dan draf SOAP dibangun pada fase berikutnya.
+                data pasien, riwayat kunjungan, serta penyusunan struktur dokumen SOAP oleh administrator.
+                Rekaman suara dan transkrip dibangun pada fase berikutnya.
             </p>
         </div>
 

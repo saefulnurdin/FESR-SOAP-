@@ -33,20 +33,28 @@ Seluruh proses AI berjalan **lokal**. Tidak ada API AI berbayar yang dipakai.
 ```
 fesr-soap/
 ├── app/
-│   ├── Enums/               Gender, BloodType, VisitType, EncounterStatus
+│   ├── Enums/               Gender, BloodType, VisitType, EncounterStatus,
+│   │                        DocumentFieldType
 │   ├── Http/Controllers/Auth/   Login, logout, lupa & atur ulang kata sandi
 │   ├── Http/Controllers/UserController.php  Manajemen pengguna (administrator)
 │   ├── Http/Controllers/PatientController.php  Manajemen pasien
 │   ├── Http/Controllers/EncounterController.php  Kunjungan pasien
+│   ├── Http/Controllers/DocumentTypeController.php  Katalog jenis dokumen
+│   ├── Http/Controllers/DocumentTemplateController.php  Template dokumen
+│   ├── Http/Controllers/DocumentTemplateSectionController.php  Bagian template
+│   ├── Http/Controllers/DocumentTemplateFieldController.php  Isian template
 │   ├── Http/Middleware/         EnsureUserIsActive
-│   └── Models/                  User, Patient, Encounter
+│   └── Models/                  User, Patient, Encounter, DocumentType,
+│                                DocumentTemplate, DocumentTemplateSection,
+│                                DocumentTemplateField
 ├── config/fesr.php         Konfigurasi AI Service, penyimpanan audio, akun admin awal
 ├── database/               Migrasi, factory, seeder
 ├── resources/
 │   ├── css/app.css         Entry point Tailwind v4
 │   ├── js/app.js           Entry point Alpine.js
 │   └── views/              Blade: layouts, components, auth, profile, admin/users,
-│                           patients, encounters
+│                           admin/document-types, admin/templates, patients,
+│                           encounters
 ├── routes/web.php          Route web
 │   └── routes/auth.php     Route autentikasi
 ├── tests/                  PHPUnit (Unit & Feature)
@@ -133,7 +141,37 @@ Setiap kunjungan (encounter) mencatat waktu, jenis kunjungan, keluhan utama,
 status, serta petugas yang menanganinya. Rekaman audio dan draf SOAP pada fase
 berikutnya akan dilampirkan pada kunjungan ini.
 
-### 2. AI Service (Python)
+### Struktur Dokumen
+
+Dokumen disusun dari empat tabel: `document_types` (katalog jenis dokumen),
+`document_templates`, `document_template_sections`, dan
+`document_template_fields`. Struktur inilah yang menjadi target pemetaan hasil
+ekstraksi, sehingga tiap bagian dan isian memiliki **key** yang stabil:
+
+- **Key** ditulis dengan huruf kecil, angka, dan garis bawah
+  (`tekanan_darah`). Nilainya tidak ikut berubah ketika judul diganti, sehingga
+  rekaman lama tetap dapat dibaca.
+- Setiap isian menyimpan **satuan** terpisah dari label, supaya hasil
+  ekstraksi dapat dicocokkan dengan satuan yang benar.
+- Tipe isian: teks pendek, teks panjang, angka, pilihan, ya/tidak, dan
+  tanggal. Tipe **pilihan** wajib menyertakan daftar pilihan.
+- **Petunjuk pengisian** pada setiap bagian ikut dibaca layanan AI untuk
+  memahami apa yang perlu diambil dari rekaman.
+
+Template dapat dinonaktifkan tanpa menghapus strukturnya, dan jenis dokumen
+yang masih memiliki template tidak dapat dihapus agar struktur yang sudah
+disiapkan tidak hilang karena salah klik. Seluruh pengelolaan template hanya
+dapat dilakukan administrator.
+
+Seeder `SoapTemplateSeeder` menyiapkan satu jenis dokumen `soap` dengan template
+**SOAP Dewasa**: bagian Subjective, Objective, Assessment, dan Plan, disertai
+14 isian. Menjalankan seeder berkali-kali tidak menggandakan data.
+
+```bash
+php artisan db:seed --class=SoapTemplateSeeder
+```
+
+### 3. AI Service (Python)
 
 ```bash
 cd ai-service
@@ -190,8 +228,8 @@ MySQL pengembangan. Pengujian yang memerlukan MySQL dapat dijalankan dengan
 | 0    | Fondasi: Laravel, MySQL, Tailwind, Alpine, FastAPI | Selesai |
 | 1    | Autentikasi & manajemen pengguna                  | Selesai |
 | 2    | Manajemen pasien & encounter                      | Selesai |
-| 3    | Document type & document template (seed SOAP)     | Berikutnya |
-| 4    | Rekaman audio & transkrip                         | -      |
+| 3    | Document type & document template (seed SOAP)     | Selesai |
+| 4    | Rekaman audio & transkrip                         | Berikutnya |
 | 5    | Speech recognition dengan Whisper                 | -      |
 | 6    | NLU & ekstraksi entitas klinis                    | -      |
 | 7    | SOAP mapper, review, penyimpanan dokumen          | -      |

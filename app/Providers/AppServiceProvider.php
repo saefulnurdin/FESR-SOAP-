@@ -22,5 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('manage-users', fn (User $user): bool => $user->is_admin);
+
+        Gate::define('manage-document-templates', fn (User $user): bool => $user->is_admin);
     }
 }
