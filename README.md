@@ -33,16 +33,20 @@ Seluruh proses AI berjalan **lokal**. Tidak ada API AI berbayar yang dipakai.
 ```
 fesr-soap/
 ├── app/
+│   ├── Enums/               Gender, BloodType, VisitType, EncounterStatus
 │   ├── Http/Controllers/Auth/   Login, logout, lupa & atur ulang kata sandi
 │   ├── Http/Controllers/UserController.php  Manajemen pengguna (administrator)
+│   ├── Http/Controllers/PatientController.php  Manajemen pasien
+│   ├── Http/Controllers/EncounterController.php  Kunjungan pasien
 │   ├── Http/Middleware/         EnsureUserIsActive
-│   └── Models/User.php
+│   └── Models/                  User, Patient, Encounter
 ├── config/fesr.php         Konfigurasi AI Service, penyimpanan audio, akun admin awal
 ├── database/               Migrasi, factory, seeder
 ├── resources/
 │   ├── css/app.css         Entry point Tailwind v4
 │   ├── js/app.js           Entry point Alpine.js
-│   └── views/              Blade: layouts, components, auth, profile, admin/users
+│   └── views/              Blade: layouts, components, auth, profile, admin/users,
+│                           patients, encounters
 ├── routes/web.php          Route web
 │   └── routes/auth.php     Route autentikasi
 ├── tests/                  PHPUnit (Unit & Feature)
@@ -114,6 +118,21 @@ Akun hanya dapat dibuat oleh administrator dari halaman **Pengguna**; tidak
 ada pendaftaran mandiri. Halaman tersebut dapat diakses oleh akun dengan
 `users.is_admin` bernilai benar.
 
+## Data Pasien
+
+- Nomor rekam medis (`MRN-<tahun>-<nomor urut>`) dibuat otomatis oleh sistem
+  setelah pasien terdaftar dan tidak dapat diubah.
+- NIK bersifat opsional tetapi unik bila diisi, sehingga aman untuk pasien tanpa
+  NIK.
+- Data pasien dikelola seluruh petugas yang aktif; akun nonaktif tidak dapat
+  mengaksesnya.
+- Menghapus pasien berarti mengarsipkan, bukan menghapus permanen. Riwayat
+  kunjungan tetap tersimpan dan pasien dapat dipulihkan dari tab **Arsip**.
+
+Setiap kunjungan (encounter) mencatat waktu, jenis kunjungan, keluhan utama,
+status, serta petugas yang menanganinya. Rekaman audio dan draf SOAP pada fase
+berikutnya akan dilampirkan pada kunjungan ini.
+
 ### 2. AI Service (Python)
 
 ```bash
@@ -170,8 +189,8 @@ MySQL pengembangan. Pengujian yang memerlukan MySQL dapat dijalankan dengan
 | ---- | ------------------------------------------------ | ------ |
 | 0    | Fondasi: Laravel, MySQL, Tailwind, Alpine, FastAPI | Selesai |
 | 1    | Autentikasi & manajemen pengguna                  | Selesai |
-| 2    | Manajemen pasien & encounter                      | Berikutnya |
-| 3    | Document type & document template (seed SOAP)     | -      |
+| 2    | Manajemen pasien & encounter                      | Selesai |
+| 3    | Document type & document template (seed SOAP)     | Berikutnya |
 | 4    | Rekaman audio & transkrip                         | -      |
 | 5    | Speech recognition dengan Whisper                 | -      |
 | 6    | NLU & ekstraksi entitas klinis                    | -      |

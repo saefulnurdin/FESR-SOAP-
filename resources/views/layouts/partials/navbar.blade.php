@@ -21,6 +21,15 @@
                         Dasbor
                     </a>
 
+                    <a href="{{ route('patients.index') }}"
+                        @class([
+                            'rounded-lg px-3 py-1.5 font-medium transition',
+                            'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white' => request()->routeIs('patients.*'),
+                            'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' => ! request()->routeIs('patients.*'),
+                        ])>
+                        Pasien
+                    </a>
+
                     @can('manage-users')
                         <a href="{{ route('admin.users.index') }}"
                             @class([
