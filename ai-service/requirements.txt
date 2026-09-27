@@ -1,0 +1,12 @@
+# Dependensi runtime AI Service FESR.
+# Versi di-pin ke rilis yang sudah diverifikasi pada lingkungan pengembangan.
+
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
+pydantic==2.13.5
+pydantic-settings==2.15.0
+python-multipart==0.0.32
+
+# Speech Recognition - dipasang pada Fase 5. Ctranslate2 menyediakan wheel
+# native cp314 sehingga Whisper dapat berjalan lokal pada Python 3.14.
+# faster-whisper==1.2.1

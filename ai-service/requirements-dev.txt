@@ -1,0 +1,5 @@
+# Dependensi pengembangan dan pengujian AI Service FESR.
+-r requirements.txt
+
+pytest==9.1.1
+httpx2
