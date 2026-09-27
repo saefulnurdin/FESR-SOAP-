@@ -30,6 +30,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Perangkat perekam milik petugas ini. Rekamannya tetap tercatat atas
+     * namanya meskipun yang mengunggah adalah perangkat.
+     *
+     * @return HasMany<Esp32Device, $this>
+     */
+    public function esp32Devices(): HasMany
+    {
+        return $this->hasMany(Esp32Device::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

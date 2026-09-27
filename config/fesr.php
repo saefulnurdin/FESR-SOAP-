@@ -67,6 +67,12 @@ return [
         'max_size_kb' => (int) env('AUDIO_MAX_SIZE_KB', 51200),
 
         /*
+         * Batas durasi rekaman. Diperbarui oleh peramban karena server tidak
+         * dapat memverifikasi panjang berkas tanpa ffmpeg.
+         */
+        'max_duration_seconds' => (int) env('AUDIO_MAX_DURATION_SECONDS', 600),
+
+        /*
          * MediaRecorder di browser menghasilkan format berbeda tergantung
          * dukungan codec. Chrome/Edge menghasilkan webm, Firefox dapat
          * menghasilkan ogg.

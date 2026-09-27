@@ -41,6 +41,17 @@
                         </a>
                     @endcan
 
+                    @can('manage-recording-devices')
+                        <a href="{{ route('admin.devices.index') }}"
+                            @class([
+                                'rounded-lg px-3 py-1.5 font-medium transition',
+                                'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white' => request()->routeIs('admin.devices.*'),
+                                'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' => ! request()->routeIs('admin.devices.*'),
+                            ])>
+                            Perangkat perekam
+                        </a>
+                    @endcan
+
                     @can('manage-users')
                         <a href="{{ route('admin.users.index') }}"
                             @class([

@@ -34,11 +34,16 @@ class EncounterFactory extends Factory
 
     /**
      * Indicate that the encounter is handled by a user.
+     *
+     * Menerima factory supaya factory lain bisa menetapkan petugas yang sama
+     * untuk kunjungan dan rekaman di dalamnya.
      */
-    public function handledBy(User $user): static
+    public function handledBy(User|UserFactory $user): static
     {
         return $this->state(fn (array $attributes): array => [
-            'doctor_id' => $user->getKey(),
+            'doctor_id' => $user instanceof UserFactory
+                ? $user->create()->getKey()
+                : $user->getKey(),
         ]);
     }
 

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -61,6 +62,17 @@ class Encounter extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'doctor_id');
+    }
+
+    /**
+     * Rekaman yang menempel pada kunjungan ini. Rekaman yang sudah diarsipkan
+     * otomatis tersembunyi karena memakai soft delete.
+     *
+     * @return HasMany<EncounterRecording, $this>
+     */
+    public function recordings(): HasMany
+    {
+        return $this->hasMany(EncounterRecording::class);
     }
 
     /**

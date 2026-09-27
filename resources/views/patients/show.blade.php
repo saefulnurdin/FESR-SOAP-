@@ -106,9 +106,20 @@
                                     <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $encounter->status->badge() }}">
                                         {{ $encounter->status->label() }}
                                     </span>
+
+                                    @if ($encounter->recordings()->exists())
+                                        <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">
+                                            {{ $encounter->recordings()->count() }} rekaman
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-end gap-4">
+                                        <a href="{{ route('patients.encounters.recordings.index', [$patient, $encounter]) }}"
+                                            class="font-medium text-teal-700 hover:underline dark:text-teal-400">
+                                            Rekaman
+                                        </a>
+
                                         <a href="{{ route('patients.encounters.edit', [$patient, $encounter]) }}"
                                             class="font-medium text-teal-700 hover:underline dark:text-teal-400">
                                             Ubah

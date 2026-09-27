@@ -138,8 +138,30 @@ ada pendaftaran mandiri. Halaman tersebut dapat diakses oleh akun dengan
   kunjungan tetap tersimpan dan pasien dapat dipulihkan dari tab **Arsip**.
 
 Setiap kunjungan (encounter) mencatat waktu, jenis kunjungan, keluhan utama,
-status, serta petugas yang menanganinya. Rekaman audio dan draf SOAP pada fase
-berikutnya akan dilampirkan pada kunjungan ini.
+status, serta petugas yang menanganinya. Rekaman audio dan draf SOAP dilampirkan
+pada kunjungan ini.
+
+### Rekaman Audio
+
+Setiap rekaman menempel pada satu kunjungan dan disimpan di `encounter_recordings`.
+Berkasnya berada pada disk privat (`storage/app/private/recordings/`) dan tidak
+punya URL publik, karena rekapan kondisi pasien hanya boleh didengarkan oleh
+petugas yang menangani kunjungan tersebut dan administrator.
+
+- **Perekaman di peramban** memakai `MediaRecorder` beserta `AnalyserNode` untuk
+  indikator level suara, dengan batas 10 menit dan penghentian otomatis.
+- **Unggahan dari perangkat ESP32** memakai endpoint yang sama, tetapi
+  diautentikasi dengan token perangkat pada header `X-Device-Token`.
+- Rekaman baru hanya bisa ditambahkan pada kunjungan berstatus **berjalan**.
+- Rekaman tidak bisa diarsipkan selama kunjungan masih berjalan; setelah diarsipkan
+  transkripnya tetap tersimpan dan rekaman dapat dikembalikan.
+- Transkrip diisi manual pada fase ini. Pengenalan suara otomatis menyusul.
+- Audio disimpan apa adanya sesuai format yang dikirim pengirim, tanpa
+  konversi di server, karena server tidak memiliki ffmpeg. Panjang rekaman
+  diverifikasi oleh peramban dan perangkat, bukan server.
+
+Token perangkat diterbitkan dari halaman **Perangkat perekam** dan hanya
+ditampilkan satu kali; yang disimpan di database adalah hash-nya.
 
 ### Struktur Dokumen
 
@@ -229,8 +251,8 @@ MySQL pengembangan. Pengujian yang memerlukan MySQL dapat dijalankan dengan
 | 1    | Autentikasi & manajemen pengguna                  | Selesai |
 | 2    | Manajemen pasien & encounter                      | Selesai |
 | 3    | Document type & document template (seed SOAP)     | Selesai |
-| 4    | Rekaman audio & transkrip                         | Berikutnya |
-| 5    | Speech recognition dengan Whisper                 | -      |
+| 4    | Rekaman audio & transkrip                         | Selesai |
+| 5    | Speech recognition dengan Whisper                 | Berikutnya |
 | 6    | NLU & ekstraksi entitas klinis                    | -      |
 | 7    | SOAP mapper, review, penyimpanan dokumen          | -      |
 | 8    | Audit trail, pengujian, dokumentasi skripsi       | -      |

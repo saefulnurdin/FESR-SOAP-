@@ -6,6 +6,8 @@ use App\Http\Controllers\DocumentTemplateFieldController;
 use App\Http\Controllers\DocumentTemplateSectionController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EncounterController;
+use App\Http\Controllers\EncounterRecordingController;
+use App\Http\Controllers\Esp32DeviceController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -47,6 +49,37 @@ Route::middleware('auth')->group(function () {
             Route::get('/{encounter}/edit', [EncounterController::class, 'edit'])->name('edit');
             Route::put('/{encounter}', [EncounterController::class, 'update'])->name('update');
             Route::delete('/{encounter}', [EncounterController::class, 'destroy'])->name('destroy');
+
+            /*
+             * Rekaman memakai nama route sendiri, bukan resource, karena
+             * pemutarannya berupa aliran byte dan bukan halaman CRUD biasa.
+             * Gate manage-recordings di route di bawah memakai parameter route
+             * agar pemeriksaan dilakukan per rekaman.
+             */
+            Route::prefix('{encounter}/recordings')
+                ->name('recordings.')
+                ->middleware('can:record-encounter,encounter')
+                ->group(function () {
+                    Route::get('/', [EncounterRecordingController::class, 'index'])->name('index');
+                    Route::post('/', [EncounterRecordingController::class, 'store'])->name('store');
+                });
+
+            Route::patch('{encounter}/recordings/{recording}/transcript', [EncounterRecordingController::class, 'updateTranscript'])
+                ->middleware('can:manage-recordings,recording')
+                ->name('recordings.transcript.update');
+
+            Route::get('{encounter}/recordings/{recording}/audio', [EncounterRecordingController::class, 'audio'])
+                ->middleware('can:manage-recordings,recording')
+                ->name('recordings.audio');
+
+            Route::delete('{encounter}/recordings/{recording}', [EncounterRecordingController::class, 'destroy'])
+                ->middleware('can:manage-recordings,recording')
+                ->name('recordings.destroy');
+
+            Route::post('{encounter}/recordings/{recording}/restore', [EncounterRecordingController::class, 'restore'])
+                ->withTrashed()
+                ->middleware('can:manage-recordings,recording')
+                ->name('recordings.restore');
         });
     });
 
@@ -89,6 +122,19 @@ Route::middleware('auth')->group(function () {
             Route::put('/fields/{field}', [DocumentTemplateFieldController::class, 'update'])->name('fields.update');
             Route::delete('/fields/{field}', [DocumentTemplateFieldController::class, 'destroy'])->name('fields.destroy');
         });
+    });
+
+    /*
+     * Perangkat perekam dikelola terpisah dari template dokumen, karena
+     * keduanya tidak berkaitan: yang boleh menerbitkan token adalah admin,
+     * dan token itu sendiri yang menentukan siapa pemilik rekamannya.
+     */
+    Route::middleware('can:manage-recording-devices')->prefix('admin/devices')->name('admin.devices.')->group(function () {
+        Route::get('/', [Esp32DeviceController::class, 'index'])->name('index');
+        Route::post('/', [Esp32DeviceController::class, 'store'])->name('store');
+        Route::post('/{esp32Device}/toggle', [Esp32DeviceController::class, 'toggle'])->name('toggle');
+        Route::post('/{esp32Device}/token', [Esp32DeviceController::class, 'regenerateToken'])->name('token.store');
+        Route::delete('/{esp32Device}', [Esp32DeviceController::class, 'destroy'])->name('destroy');
     });
 });
 
