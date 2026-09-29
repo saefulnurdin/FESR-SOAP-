@@ -5,6 +5,8 @@ pasien dengan suara. Rekaman suara diproses menjadi draf dokumen klinis
 (bahan utama penelitian: **SOAP Note**) yang kemudian ditinjau dan disetujui
 tenaga medis.
 
+Urutan kerja pemakaian aplikasi dijelaskan pada **[ALUR-KERJA.md](ALUR-KERJA.md)**.
+
 ## Arsitektur
 
 ```
