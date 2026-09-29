@@ -75,12 +75,23 @@ return [
         /*
          * MediaRecorder di browser menghasilkan format berbeda tergantung
          * dukungan codec. Chrome/Edge menghasilkan webm, Firefox dapat
-         * menghasilkan ogg.
+         * menghasilkan ogg, Safari dapat menghasilkan mp4.
+         *
+         * Yang dideteksi server adalah jenis MIME dari isi berkas, dan
+         * berkas webm/ogg sering dilaporkan sebagai video/webm atau
+         * application/ogg meski isinya hanya suara. Semua varian itu
+         * diterima supaya rekaman dari peramban mana pun tidak tertolak.
+         * Berkas acak yang tidak cocok salah satu jenis di bawah tetap
+         * ditolak.
          */
         'allowed_mimes' => [
             'audio/webm',
+            'video/webm',
+            'video/x-matroska',
             'audio/ogg',
+            'application/ogg',
             'audio/mp4',
+            'video/mp4',
             'audio/mpeg',
             'audio/wav',
             'audio/x-wav',

@@ -12,6 +12,7 @@ use Database\Factories\EncounterRecordingFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class EncounterRecordingTest extends TestCase
@@ -143,6 +144,49 @@ class EncounterRecordingTest extends TestCase
             ->assertSessionHasErrors('audio');
 
         $this->assertSame(0, EncounterRecording::count());
+    }
+
+    /**
+     * Rekaman dari peramban sering dilaporkan sebagai jenis kontainer
+     * ({@see config('fesr.audio.allowed_mimes')}) meski isinya hanya suara,
+     * jadi semuanya harus diterima dan tetap tersimpan utuh.
+     */
+    #[DataProvider('browserRecordingMimeTypes')]
+    public function test_every_browser_recording_container_is_accepted(string $mime, string $fileName): void
+    {
+        Storage::fake('local');
+
+        $encounter = $this->encounterFor(User::factory()->create(), [
+            'status' => EncounterStatus::Berjalan,
+        ]);
+
+        $this->actingAs($encounter->doctor)
+            ->post(route('patients.encounters.recordings.store', [$encounter->patient, $encounter]), [
+                'audio' => UploadedFile::fake()->create($fileName, 128, $mime),
+            ])
+            ->assertSessionHasNoErrors();
+
+        $recording = EncounterRecording::sole();
+
+        $this->assertSame($mime, $recording->mime_type);
+        $this->assertStringStartsWith('recordings/'.$encounter->getKey().'/browser/', $recording->storage_path);
+
+        // Ekstensi diturunkan dari MIME, bukan dari nama yang dikirim klien.
+        $this->assertStringNotContainsString($fileName, $recording->storage_path);
+        $this->assertTrue($recording->fileExists());
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function browserRecordingMimeTypes(): array
+    {
+        return [
+            'chrome dan edge, opus dalam webm' => ['video/webm', 'suara-pasien.webm'],
+            'firefox, opus dalam ogg' => ['application/ogg', 'suara-pasien.ogg'],
+            'safari, mp4' => ['video/mp4', 'suara-pasien.mp4'],
+            'wav' => ['audio/x-wav', 'suara-pasien.wav'],
+        ];
     }
 
     public function test_upload_rejects_a_duration_beyond_ten_minutes(): void
